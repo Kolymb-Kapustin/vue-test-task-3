@@ -93,7 +93,7 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const designs = JSON.parse(localStorage.getItem('designs'))
+    const designs = JSON.parse(localStorage.getItem('designs')) || []
 
     let editId = ref(null)
     let active = ref(false)
