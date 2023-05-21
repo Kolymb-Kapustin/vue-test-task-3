@@ -9,11 +9,11 @@
         <div class="design-list__img">
           <img
             alt="img"
-            :src="design.img"
+            :src="design.imgs[0]"
             @click="designEdit(design.id)"
           >
         </div>
-  
+
         <div class="design-list__item-footer">
           <div class="design-list__item-id">{{ design.id }}</div>
           <div class="design-list__item-name">{{ design.name }}</div>
@@ -25,11 +25,12 @@
 
 <script>
 import { useRouter } from 'vue-router'
+import { getDesigns } from '../assets/js/api'
 
 export default {
   setup() {
     const router = useRouter()
-    const designs = JSON.parse(localStorage.getItem('designs')) || []
+    const designs = getDesigns()
 
     function designEdit(payload) {
       router.push({

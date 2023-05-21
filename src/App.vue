@@ -1,7 +1,7 @@
 <template>
   <nav>
     <router-link to="/">
-      <img src="@/assets/logo.svg" alt="logo">
+      <img src="@/assets/img/logo.svg" alt="logo">
     </router-link>
   </nav>
 

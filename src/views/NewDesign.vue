@@ -8,6 +8,7 @@
     >
       Видалити
     </button>
+
     <button
       class="new-design__save-button button"
       @click="saveForm"
@@ -28,36 +29,8 @@
       </div>
     </div>
 
-    <div
-      v-if='!form.img'
-      class="form__drop-image"
-      :data-active="active"
-      @click="uploadFileTrigger"
-      @dragenter.prevent="setActive"
-      @dragover.prevent="setActive"
-      @dragleave.prevent="setInactive"
-      @drop.prevent="onDrop"
-    >
-    </div>
+    <upload-image v-model="form.imgs"/>
 
-    <div
-      v-if='form.img'
-      class="form__show-image"
-    >
-      <img
-        alt="image"
-        :src="form.img"
-        @click="uploadFileTrigger"
-      >
-    </div>
-
-    <input 
-      type="file"
-      ref="uploadInput"
-      class="form__image-uploader"
-      @change='uploadFile'
-    >
-    
     <div class="form__fields">
       <input 
         v-model="form.id"
@@ -85,88 +58,45 @@
 <script>
 import ToggleButton from '@vueform/toggle'
 import { useRouter, useRoute } from 'vue-router'
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
+import UploadImage from '@/components/UploadImage.vue'
+
+import {getDesigns, getDesign, setDesigns, deleteDesign as deleteDesignApi} from '@/assets/js/api.js'
 
 export default {
-  components: {ToggleButton},
+  components: {ToggleButton, UploadImage},
 
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const designs = JSON.parse(localStorage.getItem('designs')) || []
+    const designs = getDesigns()
 
     let editId = ref(null)
     let active = ref(false)
-    let uploadInput = ref()
     let form = reactive({
       id: '',
       name: '',
       url: '',
-      img: '',
+      imgs: [],
       enabled: false
     })
 
     if (route.query?.id) {
       editId.value = route.query.id;
-    }
+      const currentDesign = getDesign(editId.value);
 
-    const indexDesign = designs.findIndex(el => el.id === editId.value)
-
-    if (indexDesign !== -1) {
-      for (const key of Object.keys(designs[indexDesign])) {
-        form[key] = designs[indexDesign][key]
+      for (const key of Object.keys(currentDesign)) {
+        form[key] = currentDesign[key]
       }
-    }
-
-    const fr = new FileReader()
-    fr.onload = () => {
-      form.img = fr.result;
-    }
-
-    function setActive() {
-      active.value = true
-    }
-    function setInactive() {
-      active.value = false
-    }
-
-    function onDrop(e) {
-      setInactive()
-      fr.readAsDataURL(e.dataTransfer.files[0]);
-    }
-    
-    function uploadFile(e) {
-      if (e.target?.files[0]) {
-        fr.readAsDataURL(e.target.files[0]);
-      }
-    }
-
-    function uploadFileTrigger() {
-      uploadInput.value.click()
     }
 
     function saveForm() {
-      if (indexDesign !== -1) {
-        designs.splice(indexDesign, 1, form)
-        localStorage.setItem('designs', JSON.stringify(designs))
-      }
-      else if (!designs) {
-        const newDesigns = [];
-        newDesigns.push(form)
-        localStorage.setItem('designs', JSON.stringify(newDesigns))
-      }
-      else {
-        designs.push(form)
-        localStorage.setItem('designs', JSON.stringify(designs))
-      }
-
+      setDesigns(form)
       router.push('/')
     }
     
     function deleteDesign() {
-      designs.splice(indexDesign, 1)
-      localStorage.setItem('designs', JSON.stringify(designs))
-
+      deleteDesignApi(editId.value);
       router.push('/')
     }
 
@@ -175,13 +105,8 @@ export default {
       route,
       active,
       editId,
-      uploadInput,
-      onDrop,
       saveForm,
-      setActive,
-      uploadFile,
       deleteDesign,
-      uploadFileTrigger
     }
   }
 }
@@ -222,34 +147,6 @@ export default {
 
     .toggle-container:focus {
       box-shadow: none;
-    }
-  }
-
-  &__drop-image {
-    width: 600px;
-    height: 120px;
-    cursor: pointer;
-    margin-bottom: 40px;
-    border: 2px dashed rgba(0, 0, 0, 0.1);
-    background: url('../assets/upload-background.png') center no-repeat;
-  }
-
-  &__image-uploader {
-    display: none;
-  }
-
-  &__show-image {
-    text-align: left;
-    margin-bottom: 40px;
-    
-    img {
-      width: auto;
-      cursor: pointer;
-      max-height: 240px;
-    }
-
-    input {
-      display: none;
     }
   }
 
