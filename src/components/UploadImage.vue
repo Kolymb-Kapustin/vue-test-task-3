@@ -19,7 +19,7 @@
 
     <div
       class="upload-image__drop-image"
-      :class="{'upload-image__drop-image--add': modelValue}"
+      :class="{'upload-image__drop-image--add': modelValue.length}"
       :data-active="active"
       @click="uploadFileTrigger"
       @dragenter.prevent="setActive"
@@ -28,7 +28,6 @@
       @drop.prevent="onDrop"
     >
     </div>
-
   </div>
 
   <div v-if="validationText" class="upload-image__error-text">{{ validationText }}</div>
